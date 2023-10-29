@@ -1,35 +1,53 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
+import React, { Component } from "react";
+import SearchBar from "./assets/searchBar";
+import Gif from "./assets/gif.jsx";
+import GifList from "./assets/gif-list.jsx";
+import giphy from 'giphy-api';
 import './App.css'
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-function App() {
-  const [count, setCount] = useState(0)
+    this.state = {
+      gifs: [],
+      selectedGifId: 'iFU36VwXUd2O43gdcr'
+    }
 
-  return (
-    <>
+  }
+
+  changeGif = (gif) => {
+    this.setState({
+      selectedGifId: gif
+    });
+  }
+  search = (query) => {
+    giphy(import.meta.env.VITE_KEY).search({
+      q: query,
+      rating: 'g',
+      limit: 15
+    }, (err, res) => {
+      this.setState({
+        gifs: res.data
+      });
+    });
+  }
+  render() {
+    return (
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <div className="left-scene">
+          <SearchBar search={this.search} />
+          <div className="selected-gif">
+            <Gif id={this.state.selectedGifId} />
+          </div>
+        </div>
+        <div className="right-scene">
+          <GifList changeGif={this.changeGif} gifs={this.state.gifs} />
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    );
+  }
 }
 
 export default App
